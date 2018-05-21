@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 /**
  * A class containing utility methods for details with CountryZonesFile proto objects.
  */
-final class CountryZonesFileSupport {
+public final class CountryZonesFileSupport {
 
     private CountryZonesFileSupport() {}
 
-    static CountryZonesFile.CountryZones parseCountryZonesTextFile(String file)
+    public static CountryZonesFile.CountryZones parseCountryZonesTextFile(String file)
             throws IOException, ParseException {
         try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
             CountryZonesFile.CountryZones.Builder builder =
@@ -52,9 +52,9 @@ final class CountryZonesFileSupport {
                 .collect(Collectors.toList());
     }
 
-    static List<String> extractIds(List<CountryZonesFile.TimeZone> timeZones) {
+    static List<String> extractIds(List<CountryZonesFile.TimeZoneMapping> timeZones) {
         return timeZones.stream()
-                .map(CountryZonesFile.TimeZone::getId)
+                .map(CountryZonesFile.TimeZoneMapping::getId)
                 .collect(Collectors.toList());
     }
 }

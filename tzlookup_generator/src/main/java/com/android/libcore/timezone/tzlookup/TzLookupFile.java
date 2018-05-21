@@ -22,6 +22,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.stream.XMLOutputFactory;
@@ -38,13 +39,31 @@ import javax.xml.transform.stream.StreamSource;
  * A class that knows about the structure of the tzlookup.xml file.
  */
 final class TzLookupFile {
+
+    // <timezones ianaversion="2017b">
     private static final String TIMEZONES_ELEMENT = "timezones";
     private static final String IANA_VERSION_ATTRIBUTE = "ianaversion";
+
+    // <countryzones>
     private static final String COUNTRY_ZONES_ELEMENT = "countryzones";
+
+    // <country code="iso_code" default="olson_id" everutc="n|y">
     private static final String COUNTRY_ELEMENT = "country";
     private static final String COUNTRY_CODE_ATTRIBUTE = "code";
     private static final String DEFAULT_ATTRIBUTE = "default";
-    private static final String ID_ELEMENT = "id";
+    private static final String EVER_USES_UTC_ATTRIBUTE = "everutc";
+
+    // <id [picker="n|y"]>
+    private static final String ZONE_ID_ELEMENT = "id";
+    // Default when unspecified is "y" / true.
+    private static final String ZONE_SHOW_IN_PICKER_ATTRIBUTE = "picker";
+    // The time when the zone stops being distinct from another of the country's zones (inclusive).
+    private static final String ZONE_NOT_USED_AFTER_ATTRIBUTE = "notafter";
+
+
+    // Short encodings for boolean attributes.
+    private static final String ATTRIBUTE_FALSE = "n";
+    private static final String ATTRIBUTE_TRUE = "y";
 
     static void write(TimeZones timeZones, String outputFile)
             throws XMLStreamException, IOException {
@@ -52,15 +71,15 @@ final class TzLookupFile {
          * The required XML structure is:
          * <timezones ianaversion="2017b">
          *   <countryzones>
-         *     <country code="us" default="America/New_York">
+         *     <country code="us" default="America/New_York" everutc="n">
          *       <!-- -5:00 -->
-         *       <id>America/New_York"</id>
+         *       <id notafter="1234">America/New_York"</id>
          *       ...
          *       <!-- -8:00 -->
-         *       <id>America/Los_Angeles</id>
+         *       <id picker="n">America/Los_Angeles</id>
          *       ...
          *     </country>
-         *     <country code="gb" default="Europe/London">
+         *     <country code="gb" default="Europe/London" everutc="y">
          *       <!-- 0:00 -->
          *       <id>Europe/London</id>
          *     </country>
@@ -145,14 +164,16 @@ final class TzLookupFile {
 
         private final String isoCode;
         private final String defaultTimeZoneId;
-        private final List<TimeZoneIdentifier> timeZoneIds = new ArrayList<>();
+        private final boolean everUsesUtc;
+        private final List<TimeZoneMapping> timeZoneIds = new ArrayList<>();
 
-        Country(String isoCode, String defaultTimeZoneId) {
+        Country(String isoCode, String defaultTimeZoneId, boolean everUsesUtc) {
             this.defaultTimeZoneId = defaultTimeZoneId;
             this.isoCode = isoCode;
+            this.everUsesUtc = everUsesUtc;
         }
 
-        void addTimeZoneIdentifier(TimeZoneIdentifier timeZoneId) {
+        void addTimeZoneIdentifier(TimeZoneMapping timeZoneId) {
             timeZoneIds.add(timeZoneId);
         }
 
@@ -161,24 +182,45 @@ final class TzLookupFile {
             writer.writeStartElement(COUNTRY_ELEMENT);
             writer.writeAttribute(COUNTRY_CODE_ATTRIBUTE, country.isoCode);
             writer.writeAttribute(DEFAULT_ATTRIBUTE, country.defaultTimeZoneId);
-            for (TimeZoneIdentifier timeZoneId : country.timeZoneIds) {
-                TimeZoneIdentifier.writeXml(timeZoneId, writer);
+            writer.writeAttribute(EVER_USES_UTC_ATTRIBUTE, encodeBooleanAttribute(
+                    country.everUsesUtc));
+            for (TimeZoneMapping timeZoneId : country.timeZoneIds) {
+                TimeZoneMapping.writeXml(timeZoneId, writer);
             }
             writer.writeEndElement();
         }
     }
 
-    static class TimeZoneIdentifier {
+    private static String encodeBooleanAttribute(boolean value) {
+        return value ? ATTRIBUTE_TRUE : ATTRIBUTE_FALSE;
+    }
+
+    private static String encodeLongAttribute(long epochMillis) {
+        return Long.toString(epochMillis);
+    }
+
+    static class TimeZoneMapping {
 
         private final String olsonId;
+        private final boolean showInPicker;
+        private final Instant notUsedAfterInclusive;
 
-        TimeZoneIdentifier(String olsonId) {
+        TimeZoneMapping(String olsonId, boolean showInPicker, Instant notUsedAfterInclusive) {
             this.olsonId = olsonId;
+            this.showInPicker = showInPicker;
+            this.notUsedAfterInclusive = notUsedAfterInclusive;
         }
 
-        static void writeXml(TimeZoneIdentifier timeZoneId, XMLStreamWriter writer)
+        static void writeXml(TimeZoneMapping timeZoneId, XMLStreamWriter writer)
                 throws XMLStreamException {
-            writer.writeStartElement(ID_ELEMENT);
+            writer.writeStartElement(ZONE_ID_ELEMENT);
+            if (!timeZoneId.showInPicker) {
+                writer.writeAttribute(ZONE_SHOW_IN_PICKER_ATTRIBUTE, encodeBooleanAttribute(false));
+            }
+            if (timeZoneId.notUsedAfterInclusive != null) {
+                writer.writeAttribute(ZONE_NOT_USED_AFTER_ATTRIBUTE,
+                        encodeLongAttribute(timeZoneId.notUsedAfterInclusive.toEpochMilli()));
+            }
             writer.writeCharacters(timeZoneId.olsonId);
             writer.writeEndElement();
         }
