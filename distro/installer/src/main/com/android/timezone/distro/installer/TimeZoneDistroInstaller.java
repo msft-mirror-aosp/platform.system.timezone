@@ -29,8 +29,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import libcore.util.TimeZoneFinder;
-import libcore.util.ZoneInfoDB;
+import libcore.timezone.TzDataSetVersion;
+import libcore.timezone.TzDataSetVersion.TzDataSetException;
+import libcore.timezone.TimeZoneFinder;
+import libcore.timezone.ZoneInfoDB;
 
 /**
  * A distro-validation / extraction class. Separate from the services code that uses it for easier
@@ -175,7 +177,16 @@ public class TimeZoneDistroInstaller {
                 Slog.i(logTag, "Update not applied: Distro version could not be loaded");
                 return INSTALL_FAIL_BAD_DISTRO_STRUCTURE;
             }
-            if (!DistroVersion.isCompatibleWithThisDevice(distroVersion)) {
+            TzDataSetVersion distroTzDataSetVersion;
+            try {
+                distroTzDataSetVersion = new TzDataSetVersion(
+                        distroVersion.formatMajorVersion, distroVersion.formatMinorVersion,
+                        distroVersion.rulesVersion, distroVersion.revision);
+            } catch (TzDataSetException e) {
+                Slog.i(logTag, "Update not applied: Distro version could not be converted", e);
+                return INSTALL_FAIL_BAD_DISTRO_STRUCTURE;
+            }
+            if (!TzDataSetVersion.isCompatibleWithThisDevice(distroTzDataSetVersion)) {
                 Slog.i(logTag, "Update not applied: Distro format version check failed: "
                         + distroVersion);
                 return INSTALL_FAIL_BAD_DISTRO_FORMAT_VERSION;

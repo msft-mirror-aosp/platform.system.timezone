@@ -12,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import print_function
+
 import os
 import sys
 
 """Shared functions for use in tzdata scripts."""
 
-def GetIanaTarFile(dir_name, file_prefix):
+def GetIanaTarFile(dir_name, file_type):
   matching_files = []
   for filename in os.listdir(dir_name):
-    if filename.startswith(file_prefix) and filename.endswith('.tar.gz'):
+    if filename.startswith('tz%s20' % file_type) and filename.endswith('.tar.gz'):
       matching_files.append(filename);
 
   if len(matching_files) == 0:
@@ -28,6 +30,6 @@ def GetIanaTarFile(dir_name, file_prefix):
   elif len(matching_files) == 1:
     return '%s/%s' % (dir_name, matching_files[0])
   else:
-    print 'Multiple %s files found unexpectedly %s' % (file_prefix, matching_files)
+    print('Multiple tz%s files found unexpectedly %s' % (file_type, matching_files))
     sys.exit(1)
 
