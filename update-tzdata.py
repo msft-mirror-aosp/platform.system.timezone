@@ -39,8 +39,8 @@ i18nutil.CheckDirExists(timezone_dir, 'system/timezone')
 
 android_host_out = i18nutil.GetAndroidHostOutOrDie()
 
-zone_compactor_dir = os.path.realpath('%s/system/timezone/zone_compactor' % android_build_top)
-i18nutil.CheckDirExists(timezone_dir, 'system/timezone/zone_zompactor')
+zone_compactor_dir = os.path.realpath('%s/system/timezone/input_tools/android' % android_build_top)
+i18nutil.CheckDirExists(zone_compactor_dir, 'system/timezone/input_tools/android')
 
 timezone_input_tools_dir = os.path.realpath('%s/input_tools' % timezone_dir)
 timezone_input_data_dir = os.path.realpath('%s/input_data' % timezone_dir)
@@ -123,9 +123,9 @@ def ExtractTarFile(tar_file, dir):
 
 
 def BuildZic(iana_tools_dir):
-  iana_zic_code_tar_file = tzdatautil.GetIanaTarFile(iana_tools_dir, 'code')
+  iana_zic_code_tar_file = tzdatautil.GetIanaTarFile(iana_tools_dir, 'tzcode')
   iana_zic_code_version = GetIanaVersion(iana_zic_code_tar_file)
-  iana_zic_data_tar_file = tzdatautil.GetIanaTarFile(iana_tools_dir, 'data')
+  iana_zic_data_tar_file = tzdatautil.GetIanaTarFile(iana_tools_dir, 'tzdata')
   iana_zic_data_version = GetIanaVersion(iana_zic_data_tar_file)
 
   print('Found IANA zic release %s/%s in %s/%s ...' \
@@ -225,7 +225,7 @@ def main():
   print('Output data file structure: %s' % timezone_output_data_dir)
 
   iana_input_data_dir = '%s/iana' % timezone_input_data_dir
-  iana_data_tar_file = tzdatautil.GetIanaTarFile(iana_input_data_dir, 'data')
+  iana_data_tar_file = tzdatautil.GetIanaTarFile(iana_input_data_dir, 'tzdata')
   iana_data_version = GetIanaVersion(iana_data_tar_file)
   print('IANA time zone data release %s in %s ...' % (iana_data_version, iana_data_tar_file))
 
