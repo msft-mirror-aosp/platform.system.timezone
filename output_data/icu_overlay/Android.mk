@@ -1,5 +1,5 @@
 # -*- mode: makefile -*-
-# Copyright (C) 2018 The Android Open Source Project
+# Copyright (C) 2019 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ ifeq ($(WITH_HOST_DALVIK),true)
 
 # Simulate the time zone data module.
 include $(CLEAR_VARS)
-LOCAL_MODULE := tzlookup.xml_host_tzdata_apex
+LOCAL_MODULE := icu_tzdata.dat_host_tzdata_apex
 LOCAL_IS_HOST_MODULE := true
-LOCAL_SRC_FILES := tzlookup.xml
+LOCAL_SRC_FILES := icu_tzdata.dat
 LOCAL_MODULE_CLASS := ETC
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_STEM := $(LOCAL_SRC_FILES)
-LOCAL_MODULE_PATH := $(HOST_OUT)/com.android.tzdata/etc/tz
+LOCAL_MODULE_PATH := $(HOST_OUT)/com.android.tzdata/etc/icu
 include $(BUILD_PREBUILT)
 
 endif
