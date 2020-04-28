@@ -17,27 +17,18 @@ LOCAL_PATH:= $(call my-dir)
 
 ifeq ($(WITH_HOST_DALVIK),true)
 
-# Host simulations of APEX modules for use by hostdex rules.
+# A host version of the tzlookup.xml module for use by
+# hostdex rules.
 
-# Simulate the time zone data module.
+# Simulate the runtime module.
 include $(CLEAR_VARS)
-LOCAL_MODULE := tzlookup.xml_host_tzdata_apex
+LOCAL_MODULE := tzlookup.xml_host_runtime_apex
 LOCAL_IS_HOST_MODULE := true
 LOCAL_SRC_FILES := tzlookup.xml
 LOCAL_MODULE_CLASS := ETC
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE_STEM := $(LOCAL_SRC_FILES)
-LOCAL_MODULE_PATH := $(HOST_OUT)/com.android.tzdata/etc/tz
-include $(BUILD_PREBUILT)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE := telephonylookup.xml_host_tzdata_apex
-LOCAL_IS_HOST_MODULE := true
-LOCAL_SRC_FILES := telephonylookup.xml
-LOCAL_MODULE_CLASS := ETC
-LOCAL_MODULE_TAGS := optional
-LOCAL_MODULE_STEM := $(LOCAL_SRC_FILES)
-LOCAL_MODULE_PATH := $(HOST_OUT)/com.android.tzdata/etc/tz
+LOCAL_MODULE_PATH := $(HOST_OUT)/com.android.runtime/etc/tz
 include $(BUILD_PREBUILT)
 
 endif

@@ -52,7 +52,6 @@ apex {
     prebuilts: [
         "apex_tz_version",
         "apex_tzlookup.xml",
-        "apex_telephonylookup.xml",
         "apex_tzdata",
         "apex_icu_tzdata.dat",
     ],

@@ -44,7 +44,6 @@ public final class TimeZoneDistroBuilder {
     private byte[] tzData;
     private byte[] icuData;
     private String tzLookupXml;
-    private String telephonyLookupXml;
 
     public TimeZoneDistroBuilder setDistroVersion(DistroVersion distroVersion) {
         this.distroVersion = distroVersion;
@@ -95,18 +94,8 @@ public final class TimeZoneDistroBuilder {
         return setTzLookupXml(readFileAsUtf8(tzLookupFile));
     }
 
-    public TimeZoneDistroBuilder setTzLookupXml(String tzLookupXml) {
-        this.tzLookupXml = tzLookupXml;
-        return this;
-    }
-
-    public TimeZoneDistroBuilder setTelephonyLookupFile(File telephonyLookupFile)
-            throws IOException {
-        return setTelephonyLookupXml(readFileAsUtf8(telephonyLookupFile));
-    }
-
-    public TimeZoneDistroBuilder setTelephonyLookupXml(String telephonyLookupXml) {
-        this.telephonyLookupXml = telephonyLookupXml;
+    public TimeZoneDistroBuilder setTzLookupXml(String tzlookupXml) {
+        this.tzLookupXml = tzlookupXml;
         return this;
     }
 
@@ -135,10 +124,6 @@ public final class TimeZoneDistroBuilder {
             if (tzLookupXml != null) {
                 addZipEntry(zos, TimeZoneDistro.TZLOOKUP_FILE_NAME,
                         tzLookupXml.getBytes(StandardCharsets.UTF_8));
-            }
-            if (telephonyLookupXml != null) {
-                addZipEntry(zos, TimeZoneDistro.TELEPHONYLOOKUP_FILE_NAME,
-                        telephonyLookupXml.getBytes(StandardCharsets.UTF_8));
             }
         } catch (IOException e) {
             throw new DistroException("Unable to create zip file", e);
