@@ -52,7 +52,7 @@
    <id notafter="687931200000" repl="America/Argentina/Catamarca">America/Argentina/La_Rioja</id>
    <id notafter="673588800000" repl="America/Argentina/La_Rioja">America/Argentina/Rio_Gallegos</id>
    <id notafter="1087704000000" repl="America/Argentina/Salta">America/Argentina/Ushuaia</id>
-   <id>America/Argentina/San_Luis</id>
+   <id notafter="1255233600000" repl="America/Argentina/Buenos_Aires">America/Argentina/San_Luis</id>
   </country>
   <country code="as" default="Pacific/Pago_Pago" everutc="n">
    <id alts="Pacific/Samoa,US/Samoa">Pacific/Pago_Pago</id>
@@ -63,8 +63,7 @@
   <country code="au" default="Australia/Sydney" everutc="n">
    <id alts="Australia/ACT,Australia/Canberra,Australia/NSW">Australia/Sydney</id>
    <id notafter="796147200000" repl="Australia/Sydney" alts="Australia/Victoria">Australia/Melbourne</id>
-   <id notafter="1193500800000" repl="Australia/Sydney" alts="Australia/Tasmania">Australia/Hobart</id>
-   <id notafter="37728000000" repl="Australia/Hobart">Australia/Currie</id>
+   <id notafter="1193500800000" repl="Australia/Sydney" alts="Australia/Currie,Australia/Tasmania">Australia/Hobart</id>
    <id alts="Australia/Queensland">Australia/Brisbane</id>
    <id notafter="762883200000" repl="Australia/Brisbane">Australia/Lindeman</id>
    <id notafter="1286035200000" repl="Australia/Sydney">Antarctica/Macquarie</id>
@@ -469,7 +468,7 @@
    <id>Asia/Oral</id>
    <id notafter="1099173600000" repl="Asia/Oral">Asia/Aqtau</id>
    <id notafter="1545328800000" repl="Asia/Oral">Asia/Qyzylorda</id>
-   <id notafter="1545328800000" repl="Asia/Oral">Asia/Aqtobe</id>
+   <id notafter="1099173600000" repl="Asia/Oral">Asia/Aqtobe</id>
    <id notafter="922572000000" repl="Asia/Oral">Asia/Atyrau</id>
   </country>
   <country code="la" default="Asia/Vientiane" everutc="n">
@@ -537,7 +536,7 @@
    <id alts="Asia/Rangoon">Asia/Yangon</id>
   </country>
   <country code="mn" default="Asia/Ulaanbaatar" everutc="n">
-   <id>Asia/Choibalsan</id>
+   <id notafter="1206889200000" repl="Asia/Ulaanbaatar">Asia/Choibalsan</id>
    <id alts="Asia/Ulan_Bator">Asia/Ulaanbaatar</id>
    <id>Asia/Hovd</id>
   </country>
@@ -711,8 +710,8 @@
    <id>Europe/Saratov</id>
    <id notafter="1480806000000" repl="Europe/Saratov">Europe/Ulyanovsk</id>
    <id notafter="701823600000" repl="Europe/Ulyanovsk">Europe/Astrakhan</id>
-   <id>Europe/Volgograd</id>
    <id alts="W-SU">Europe/Moscow</id>
+   <id>Europe/Volgograd</id>
    <id>Europe/Kirov</id>
    <id>Europe/Kaliningrad</id>
   </country>
