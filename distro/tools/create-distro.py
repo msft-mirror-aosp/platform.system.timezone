@@ -1,4 +1,4 @@
-#!/usr/bin/python -B
+#!/usr/bin/python3 -B
 
 # Copyright 2017 The Android Open Source Project
 #
@@ -15,8 +15,6 @@
 # limitations under the License.
 
 """Generates a time zone distro file"""
-
-from __future__ import print_function
 
 import argparse
 import os
