@@ -1,4 +1,4 @@
-### 2021a rev. 2
+### 2021a rev. 2 
 
 In `2021b` several time zones which were alike since 1970 were merged. It
 received backlash in tz mailing-list. Please check
@@ -56,5 +56,4 @@ requires changes in CLDR and `tzdb2021b` was announced late in CLDR's release
 cycle.
 
 Code changes were skipped as Android uses fixed version of tzcode, not ToT.
-
 
