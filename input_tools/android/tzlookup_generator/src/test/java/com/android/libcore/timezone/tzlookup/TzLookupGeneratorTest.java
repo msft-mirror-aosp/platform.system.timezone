@@ -68,12 +68,13 @@ public class TzLookupGeneratorTest {
         String countryZonesFile = createFile(tempDir, "THIS IS NOT A VALID FILE");
         List<ZoneTabFile.CountryEntry> gbZoneTabEntries = createValidZoneTabEntriesGb();
         String zoneTabFile = createZoneTabFile(gbZoneTabEntries);
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
     }
 
     @Test
@@ -87,13 +88,14 @@ public class TzLookupGeneratorTest {
 
         List<ZoneTabFile.CountryEntry> gbZoneTabEntries = createValidZoneTabEntriesGb();
         String zoneTabFile = createZoneTabFile(gbZoneTabEntries);
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
 
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
@@ -106,6 +108,7 @@ public class TzLookupGeneratorTest {
                 createValidCountryGb().toBuilder().clearTimeZoneMappings().build();
         CountryZonesFile.CountryZones countryZones = createValidCountryZones(gbWithoutZones);
         String countryZonesFile = createCountryZonesFile(countryZones);
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
 
         String zoneTabFile = createZoneTabFile(createValidZoneTabEntriesGb());
 
@@ -113,8 +116,8 @@ public class TzLookupGeneratorTest {
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
@@ -132,6 +135,7 @@ public class TzLookupGeneratorTest {
         CountryZonesFile.CountryZones countryZones =
                 createValidCountryZones(gbWithDuplicateZones);
         String countryZonesFile = createCountryZonesFile(countryZones);
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
 
         String zoneTabFile = createZoneTabFile(createValidZoneTabEntriesGb());
 
@@ -139,8 +143,8 @@ public class TzLookupGeneratorTest {
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
@@ -158,20 +162,21 @@ public class TzLookupGeneratorTest {
 
         List<ZoneTabFile.CountryEntry> gbZoneTabEntries = createValidZoneTabEntriesGb();
         String zoneTabFile = createZoneTabFile(gbZoneTabEntries);
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
 
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
     }
 
     @Test
-    public void shouldFail_whenExplicitDefaultIdBelongsToOtherCountry() throws Exception {
+    public void explicitDefaultIdInvalid() throws Exception {
         // Set a valid default, but to one that isn't referenced by "gb".
         CountryZonesFile.Country validGb = createValidCountryGb().toBuilder()
                 .setDefaultTimeZoneId(createValidCountryFr().getTimeZoneMappings(0).getId())
@@ -181,13 +186,14 @@ public class TzLookupGeneratorTest {
 
         List<ZoneTabFile.CountryEntry> gbZoneTabEntries = createValidZoneTabEntriesGb();
         String zoneTabFile = createZoneTabFile(gbZoneTabEntries);
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
 
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
@@ -205,7 +211,7 @@ public class TzLookupGeneratorTest {
         List<ZoneTabFile.CountryEntry> gbZoneTabEntries = createValidZoneTabEntriesGb();
 
         OutputData outputData =
-                generateOutputData(gbWithoutDefault, gbZoneTabEntries);
+                generateOutputData(gbWithoutDefault, gbZoneTabEntries, createEmptyBackwardLinks());
 
         // Check gb's time zone was defaulted.
         assertContains(outputData.tzLookupXml, "code=\"gb\" default=\"" + gbTimeZoneId + "\"");
@@ -223,7 +229,7 @@ public class TzLookupGeneratorTest {
         List<ZoneTabFile.CountryEntry> gbZoneTabEntries = createValidZoneTabEntriesGb();
 
         OutputData outputData = generateOutputData(
-                gbWithExplicitDefaultTimeZone, gbZoneTabEntries);
+                gbWithExplicitDefaultTimeZone, gbZoneTabEntries, createEmptyBackwardLinks());
 
         // Check gb's time zone was defaulted.
         assertContains(outputData.tzLookupXml, "code=\"gb\" default=\"" + gbTimeZoneId + "\"");
@@ -241,13 +247,14 @@ public class TzLookupGeneratorTest {
 
         List<ZoneTabFile.CountryEntry> gbZoneTabEntries = createValidZoneTabEntriesGb();
         String zoneTabFile = createZoneTabFile(gbZoneTabEntries);
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
 
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
@@ -264,20 +271,21 @@ public class TzLookupGeneratorTest {
 
         List<ZoneTabFile.CountryEntry> gbZoneTabEntries = createValidZoneTabEntriesGb();
         String zoneTabFile = createZoneTabFile(gbZoneTabEntries);
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
 
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
     }
 
     @Test
-    public void shouldNotFail_whenCountryZonesAndZoneTabCountryMismatch() throws Exception {
+    public void countryZonesAndZoneTabCountryMismatch() throws Exception {
         // The two input files contain non-identical country ISO codes.
         CountryZonesFile.CountryZones countryZones =
                 createValidCountryZones(createValidCountryGb(), createValidCountryFr());
@@ -285,29 +293,39 @@ public class TzLookupGeneratorTest {
 
         String zoneTabFile =
                 createZoneTabFile(createValidZoneTabEntriesFr(), createValidZoneTabEntriesUs());
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertTrue(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
+
+        assertFileMissing(tzLookupFile);
+        assertFileMissing(tzIdsFile);
     }
 
     @Test
-    public void shouldNotFail_whenCountryZonesAndZoneTabDisagreeOnZones() throws Exception {
-        CountryZonesFile.Country gbWithWrongZones = createValidCountryGb();
+    public void countryZonesAndZoneTabDisagreeOnZones() throws Exception {
+        CountryZonesFile.Country gbWithWrongZones =
+                createValidCountryGb().toBuilder()
+                        .clearTimeZoneMappings()
+                        .addAllTimeZoneMappings(createValidCountryFr().getTimeZoneMappingsList())
+                        .build();
         CountryZonesFile.CountryZones countryZones = createValidCountryZones(gbWithWrongZones);
         String countryZonesFile = createCountryZonesFile(countryZones);
 
-        String zoneTabFile = createZoneTabFile(
-                List.of(new ZoneTabFile.CountryEntry("GB", "Europe/Paris")));
+        String zoneTabFile = createZoneTabFile(createValidZoneTabEntriesGb());
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
-        assertTrue(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+        assertFileMissing(tzLookupFile);
+        assertFileMissing(tzIdsFile);
     }
 
     @Test
@@ -319,12 +337,13 @@ public class TzLookupGeneratorTest {
         String zoneTabFileWithDupes = createZoneTabFile(
                 createValidZoneTabEntriesGb(), createValidZoneTabEntriesGb());
 
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFileWithDupes, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFileWithDupes, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
@@ -341,13 +360,14 @@ public class TzLookupGeneratorTest {
         String countryZonesFile = createCountryZonesFile(countryZones);
 
         String zoneTabFile = createZoneTabFile(createValidZoneTabEntriesGb());
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
 
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
@@ -368,23 +388,76 @@ public class TzLookupGeneratorTest {
                 new ArrayList<>(createValidZoneTabEntriesGb());
         zoneTabEntriesWithBadId.add(new ZoneTabFile.CountryEntry("GB", INVALID_TIME_ZONE_ID));
         String zoneTabFile = createZoneTabFile(zoneTabEntriesWithBadId);
+        String backwardFile = createBackwardFile(createEmptyBackwardLinks());
 
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
 
         assertFileMissing(tzLookupFile);
         assertFileMissing(tzIdsFile);
     }
 
     @Test
+    public void badBackwardFile() throws Exception {
+        CountryZonesFile.CountryZones countryZones = createValidCountryZones(createValidCountryGb());
+        String countryZonesFile = createCountryZonesFile(countryZones);
+        String zoneTabFile = createZoneTabFile(createValidZoneTabEntriesGb());
+
+        String badBackwardFile = TestUtils.createFile(tempDir, "THIS IS NOT VALID");
+
+        String tzLookupFile = createTempFileName("tzlookup");
+        String tzIdsFile = createTempFileName("tzids");
+
+        TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
+                countryZonesFile, zoneTabFile, badBackwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
+
+        assertFileMissing(tzLookupFile);
+        assertFileMissing(tzIdsFile);
+    }
+
+    @Test
+    public void checkNormalLinks() throws Exception {
+        String countryZonesText = "isoCode:\"gb\"\n"
+                + "timeZoneMappings:<\n"
+                + "  utcOffset:\"0:00\"\n"
+                + "  id:\"Europe/London\"\n"
+                + ">\n";
+
+        Country country = parseCountry(countryZonesText);
+        List<ZoneTabFile.CountryEntry> zoneTab = Arrays.asList(
+                new ZoneTabFile.CountryEntry("GB", "Europe/London"));
+        Map<String, String> backwardLinks = new HashMap<>();
+        // GB is an obsoleted ID for Europe/London.
+        backwardLinks.put("GB", "Europe/London");
+
+        OutputData outputData = generateOutputData(country, zoneTab, backwardLinks);
+
+        // GB will be listed as an alternative for Europe/London.
+        String expectedTzLookupXmlLine = "<id alts=\"GB\">Europe/London</id>\n";
+        assertContains(outputData.tzLookupXml, expectedTzLookupXmlLine);
+
+        TzIdsProto.TimeZoneIds.Builder tzIdsBuilder = TzIdsProto.TimeZoneIds
+                .newBuilder()
+                .setIanaVersion(TZDB_VERSION);
+        TzIdsProto.CountryMapping.Builder b = TzIdsProto.CountryMapping.newBuilder()
+                .setIsoCode("gb")
+                .addTimeZoneIds("Europe/London");
+        addLink(b, "GB" /* alternativeId */, "Europe/London" /* preferredId */);
+        tzIdsBuilder.addCountryMappings(b);
+        assertEquals(tzIdsBuilder.build(), outputData.timeZoneIds);
+    }
+
+    @Test
     public void usingOldIdsInCountryTextIsValid() throws Exception {
         // This simulates a case where America/Godthab has been superseded by America/Nuuk in IANA
         // data, but Android wants to continue using America/Godthab. This is signaled as deliberate
-        // through the use of the alternativeIds in countryzones.txt.
+        // through the use of the aliasId in countryzones.txt (otherwise the tooling will complain,
+        // see next test).
         String countryZonesWithOldIdText =
                 "isoCode:\"gl\"\n"
                 + "defaultTimeZoneId:\"America/Godthab\"\n"
@@ -401,7 +474,7 @@ public class TzLookupGeneratorTest {
                 + "timeZoneMappings:<\n"
                 + "  utcOffset:\"-3:00\"\n"
                 + "  id:\"America/Godthab\"\n"
-                + "  alternativeIds: \"America/Nuuk\"\n"
+                + "  aliasId:\"America/Nuuk\"\n"
                 + ">\n"
                 + "\n"
                 + "timeZoneMappings:<\n"
@@ -415,8 +488,10 @@ public class TzLookupGeneratorTest {
                 new ZoneTabFile.CountryEntry("GL", "America/Scoresbysund"),
                 new ZoneTabFile.CountryEntry("GL", "America/Thule")
         );
+        Map<String, String> backwardLinks = new HashMap<>();
+        backwardLinks.put("America/Godthab", "America/Nuuk");
 
-        OutputData outputData = generateOutputData(country, zoneTabWithNewIds);
+        OutputData outputData = generateOutputData(country, zoneTabWithNewIds, backwardLinks);
 
         String expectedTzLookupOutput = "<id>America/Danmarkshavn</id>\n"
                 + "<id>America/Scoresbysund</id>\n"
@@ -438,49 +513,9 @@ public class TzLookupGeneratorTest {
                 .addTimeZoneIds("America/Godthab")
                 .addTimeZoneIds("America/Thule");
 
-        // Because Android lists America/Nuuk in alternativeIds in countryzones.txt, the link will
+        // Because Android lists America/Nuuk as the aliasId in countryzones.txt, the link will
         // be reversed from the usual.
         addLink(b, "America/Nuuk" /* alternativeId */, "America/Godthab" /* preferredId */);
-
-        tzIdsBuilder.addCountryMappings(b);
-        assertEquals(tzIdsBuilder.build(), outputData.timeZoneIds);
-    }
-
-    @Test
-    public void alternativeIds_shouldBeUsedToFillAltsSection() throws Exception {
-        Country country = Country.newBuilder()
-                .setIsoCode("gb")
-                .addTimeZoneMappings(CountryZonesFile.TimeZoneMapping.newBuilder()
-                        .setId("Europe/London")
-                        .setUtcOffset("0:00")
-                        .addAlternativeIds("Europe/Belfast")
-                        .addAlternativeIds("GB")
-                        .addAlternativeIds("GB-Eire"))
-                .build();
-
-        List<ZoneTabFile.CountryEntry> zoneTabEntries = List.of(
-                new ZoneTabFile.CountryEntry("GB", "Europe/London"));
-
-        OutputData outputData = generateOutputData(country, zoneTabEntries);
-
-        String expectedTzlookupOutput = "<country code=\"gb\" default=\"Europe/London\" "
-                + "everutc=\"y\">\n"
-                + "<id alts=\"Europe/Belfast,GB,GB-Eire\">Europe/London</id>\n"
-                + "</country>";
-
-        assertContains(outputData.tzLookupXml, expectedTzlookupOutput.split("\n"));
-
-        TzIdsProto.TimeZoneIds.Builder tzIdsBuilder = TzIdsProto.TimeZoneIds
-                .newBuilder()
-                .setIanaVersion(TZDB_VERSION);
-
-        TzIdsProto.CountryMapping.Builder b = TzIdsProto.CountryMapping.newBuilder()
-                .setIsoCode("gb")
-                .addTimeZoneIds("Europe/London");
-
-        addLink(b, "Europe/Belfast" /* alternativeId */, "Europe/London" /* preferredId */);
-        addLink(b, "GB" /* alternativeId */, "Europe/London" /* preferredId */);
-        addLink(b, "GB-Eire" /* alternativeId */, "Europe/London" /* preferredId */);
 
         tzIdsBuilder.addCountryMappings(b);
         assertEquals(tzIdsBuilder.build(), outputData.timeZoneIds);
@@ -497,10 +532,53 @@ public class TzLookupGeneratorTest {
     }
 
     @Test
+    public void usingOldLinksMissingAlias() throws Exception {
+        // This simulates a case where America/Godthab has been superseded by America/Nuuk in IANA
+        // data, but the Android file hasn't been updated properly.
+        String countryZonesWithOldIdText =
+                "isoCode:\"gl\"\n"
+                + "defaultTimeZoneId:\"America/Godthab\"\n"
+                + "timeZoneMappings:<\n"
+                + "  utcOffset:\"0:00\"\n"
+                + "  id:\"America/Danmarkshavn\"\n"
+                + ">\n"
+                + "\n"
+                + "timeZoneMappings:<\n"
+                + "  utcOffset:\"-1:00\"\n"
+                + "  id:\"America/Scoresbysund\"\n"
+                + ">\n"
+                + "\n"
+                + "timeZoneMappings:<\n"
+                + "  utcOffset:\"-3:00\"\n"
+                + "  id:\"America/Godthab\"\n"
+
+                // Exclude the crucial line that tells the generator we meant to use an old ID...
+                /* + "  aliasId:\"America/Nuuk\"\n" */
+
+                + ">\n"
+                + "\n"
+                + "timeZoneMappings:<\n"
+                + "  utcOffset:\"-4:00\"\n"
+                + "  id:\"America/Thule\"\n"
+                + ">\n";
+        Country country = parseCountry(countryZonesWithOldIdText);
+        List<ZoneTabFile.CountryEntry> zoneTabWithNewIds = Arrays.asList(
+                new ZoneTabFile.CountryEntry("GL", "America/Nuuk"),
+                new ZoneTabFile.CountryEntry("GL", "America/Danmarkshavn"),
+                new ZoneTabFile.CountryEntry("GL", "America/Scoresbysund"),
+                new ZoneTabFile.CountryEntry("GL", "America/Thule")
+        );
+        Map<String, String> links = new HashMap<>();
+        links.put("America/Godthab", "America/Nuuk");
+
+        generateTzLookupXmlExpectFailure(country, zoneTabWithNewIds, links);
+    }
+
+    @Test
     public void everUtc_true() throws Exception {
         CountryZonesFile.Country validCountryGb = createValidCountryGb();
         OutputData outputData = generateOutputData(
-                validCountryGb, createValidZoneTabEntriesGb());
+                validCountryGb, createValidZoneTabEntriesGb(), createEmptyBackwardLinks());
 
         // Check gb's entry contains everutc="y".
         assertContains(outputData.tzLookupXml, "everutc=\"y\"");
@@ -510,7 +588,7 @@ public class TzLookupGeneratorTest {
     public void everUtc_false() throws Exception {
         CountryZonesFile.Country validCountryFr = createValidCountryFr();
         OutputData outputData = generateOutputData(
-                validCountryFr, createValidZoneTabEntriesFr());
+                validCountryFr, createValidZoneTabEntriesFr(), createEmptyBackwardLinks());
 
         // Check fr's entry contains everutc="n".
         assertContains(outputData.tzLookupXml, "everutc=\"n\"");
@@ -529,7 +607,7 @@ public class TzLookupGeneratorTest {
         CountryZonesFile.Country country = countryBuilder.build();
 
         OutputData outputData = generateOutputData(
-                country, createValidZoneTabEntriesFr());
+                country, createValidZoneTabEntriesFr(), createEmptyBackwardLinks());
 
         assertContains(outputData.tzLookupXml, "picker=\"n\"");
     }
@@ -547,7 +625,7 @@ public class TzLookupGeneratorTest {
         CountryZonesFile.Country country = countryBuilder.build();
 
         OutputData outputData = generateOutputData(
-                country, createValidZoneTabEntriesFr());
+                country, createValidZoneTabEntriesFr(), createEmptyBackwardLinks());
 
         // We should not see anything "picker="y" is the implicit default.
         assertAbsent(outputData.tzLookupXml, "picker=");
@@ -557,7 +635,8 @@ public class TzLookupGeneratorTest {
     public void notAfter() throws Exception {
         CountryZonesFile.Country country = createValidCountryUs();
         List<ZoneTabFile.CountryEntry> zoneTabEntries = createValidZoneTabEntriesUs();
-        OutputData outputData = generateOutputData(country, zoneTabEntries);
+        OutputData outputData = generateOutputData(
+                country, zoneTabEntries, createEmptyBackwardLinks());
         String expectedTzLookupOutput =
                 "<id>America/New_York</id>\n"
                 + "<id notafter=\"167814000000\" repl=\"America/New_York\">America/Detroit</id>\n"
@@ -628,257 +707,10 @@ public class TzLookupGeneratorTest {
         addReplacement(b, 436356000000L, "America/Juneau", "America/Yakutat");
         addReplacement(b, 436363200000L, "America/Anchorage", "America/Nome");
         addReplacement(b, 1547978400000L, "America/Anchorage", "America/Metlakatla");
-        addReplacement(b, 341402400000L, "America/Juneau", "America/Sitka");
+        addReplacement(b, 341402400000L, "America/Juneau", "America/Sitka");;
 
         tzIdsBuilder.addCountryMappings(b);
         assertEquals(tzIdsBuilder.build(), outputData.timeZoneIds);
-    }
-
-    @Test
-    public void eachAlternativeTimeZoneShouldBeAttributedToSingleCountryOnly() throws Exception {
-        CountryZonesFile.Country gbCountry =
-                CountryZonesFile.Country.newBuilder()
-                        .setIsoCode("gb")
-                        .addTimeZoneMappings(CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("00:00")
-                                .setId("Europe/London")
-                                .addAlternativeIds("Europe/Belfast"))
-                        .build();
-
-        CountryZonesFile.Country franceCountry =
-                CountryZonesFile.Country.newBuilder()
-                        .setIsoCode("fr")
-                        .addTimeZoneMappings(CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("1:00")
-                                .setId("Europe/Paris")
-                                .addAlternativeIds("Europe/Belfast"))
-                        .build();
-
-
-        CountryZonesFile.CountryZones countryZones =
-                createValidCountryZones(gbCountry, franceCountry);
-        String countryZonesFile = createCountryZonesFile(countryZones);
-
-        String zoneTabFile = createZoneTabFile();
-
-        String tzLookupFile = createTempFileName("tzlookup");
-        String tzIdsFile = createTempFileName("tzids");
-
-        TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
-
-        assertFileMissing(tzLookupFile);
-        assertFileMissing(tzIdsFile);
-    }
-
-    @Test
-    public void idInMappingsShouldBeAttributedToSingleCountryOnly() throws Exception {
-        CountryZonesFile.Country gbCountry =
-                CountryZonesFile.Country.newBuilder()
-                        .setIsoCode("gb")
-                        .addTimeZoneMappings(CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("00:00")
-                                .setId("Europe/London"))
-                        .build();
-
-        CountryZonesFile.Country franceCountry =
-                CountryZonesFile.Country.newBuilder()
-                        .setIsoCode("fr")
-                        .addTimeZoneMappings(CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("1:00")
-                                .setId("Europe/London"))
-                        .build();
-
-
-        CountryZonesFile.CountryZones countryZones =
-                createValidCountryZones(gbCountry, franceCountry);
-        String countryZonesFile = createCountryZonesFile(countryZones);
-
-        String zoneTabFile = createZoneTabFile();
-        String tzLookupFile = createTempFileName("tzlookup");
-        String tzIdsFile = createTempFileName("tzids");
-
-        TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
-
-        assertFileMissing(tzLookupFile);
-        assertFileMissing(tzIdsFile);
-    }
-
-    @Test
-    public void idInMappingsShouldNotAppearInAlternativeNameIds() throws Exception {
-        CountryZonesFile.Country gbCountry =
-                CountryZonesFile.Country.newBuilder()
-                        .setIsoCode("gb")
-                        .addTimeZoneMappings(CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("00:00")
-                                .setId("Europe/London"))
-                        .build();
-
-        CountryZonesFile.Country franceCountry =
-                CountryZonesFile.Country.newBuilder()
-                        .setIsoCode("fr")
-                        .addTimeZoneMappings(CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("1:00")
-                                .setId("Europe/Paris")
-                                .addAlternativeIds("Europe/London"))
-                        .build();
-
-
-        CountryZonesFile.CountryZones countryZones =
-                createValidCountryZones(gbCountry, franceCountry);
-        String countryZonesFile = createCountryZonesFile(countryZones);
-
-        String zoneTabFile = createZoneTabFile();
-        String tzLookupFile = createTempFileName("tzlookup");
-        String tzIdsFile = createTempFileName("tzids");
-
-        TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
-
-        assertFileMissing(tzLookupFile);
-        assertFileMissing(tzIdsFile);
-    }
-
-    @Test
-    public void shouldFail_whenIdAppearsInMultipleTimeZoneMappingWithinACountry() throws Exception {
-        CountryZonesFile.Country country =
-                CountryZonesFile.Country.newBuilder()
-                .setIsoCode("ar")
-                .addTimeZoneMappings(
-                        CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("-3:00")
-                                .setId("America/Argentina/Buenos_Aires")
-                                .addAlternativeIds("America/Buenos_Aires"))
-                .addTimeZoneMappings(
-                        CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("-3:00")
-                                .setId("America/Argentina/Cordoba")
-                                .addAlternativeIds("America/Cordoba")
-                                .addAlternativeIds("America/Buenos_Aires"))
-                .build();
-
-        CountryZonesFile.CountryZones countryZones = createValidCountryZones(country);
-        String countryZonesFile = createCountryZonesFile(countryZones);
-
-        String zoneTabFile = createZoneTabFile();
-        String tzLookupFile = createTempFileName("tzlookup");
-        String tzIdsFile = createTempFileName("tzids");
-
-        TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
-    }
-
-    @Test
-    public void shouldFail_whenIdIsMentionedAmongAlternativeIds() throws Exception {
-        CountryZonesFile.Country country =
-                CountryZonesFile.Country.newBuilder()
-                .setIsoCode("gb")
-                .addTimeZoneMappings(
-                        CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("00:00")
-                                .setId("Europe/London")
-                                .addAlternativeIds("Europe/London"))
-                .build();
-
-        CountryZonesFile.CountryZones countryZones = createValidCountryZones(country);
-        String countryZonesFile = createCountryZonesFile(countryZones);
-
-        String zoneTabFile = createZoneTabFile();
-        String tzlookupFile = createTempFileName("tzlookup");
-        String tzIdsFile = createTempFileName("tzids");
-
-        TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzlookupFile, tzIdsFile);
-
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
-    }
-
-    @Test
-    public void shouldFail_whenAlternativeIdsListContainsDuplicates() throws Exception {
-        CountryZonesFile.Country country =
-                CountryZonesFile.Country.newBuilder()
-                .setIsoCode("gb")
-                .addTimeZoneMappings(
-                        CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("00:00")
-                                .setId("Europe/London")
-                                .addAlternativeIds("Europe/Belfast")
-                                .addAlternativeIds("GB")
-                                .addAlternativeIds("Europe/Belfast"))
-                .build();
-
-        CountryZonesFile.CountryZones countryZones = createValidCountryZones(country);
-        String countryZonesFile = createCountryZonesFile(countryZones);
-
-        String zoneTabFile = createZoneTabFile();
-        String tzlookupFile = createTempFileName("tzlookup");
-        String tzIdsFile = createTempFileName("tzids");
-
-        TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzlookupFile, tzIdsFile);
-
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
-    }
-
-    @Test
-    public void shouldFail_whenAlternativeIdsListContainsNonEquivalentTimeZoneId()
-            throws Exception {
-        CountryZonesFile.Country country =
-                CountryZonesFile.Country.newBuilder()
-                        .setIsoCode("gb")
-                        .addTimeZoneMappings(
-                                CountryZonesFile.TimeZoneMapping.newBuilder()
-                                        .setUtcOffset("00:00")
-                                        .setId("Europe/London")
-                                        .addAlternativeIds("Europe/Belfast")
-                                        .addAlternativeIds("GB")
-                                        .addAlternativeIds("Europe/Paris"))
-                        .build();
-
-        CountryZonesFile.CountryZones countryZones = createValidCountryZones(country);
-        String countryZonesFile = createCountryZonesFile(countryZones);
-
-        String zoneTabFile = createZoneTabFile();
-        String tzlookupFile = createTempFileName("tzlookup");
-        String tzIdsFile = createTempFileName("tzids");
-
-        TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzlookupFile, tzIdsFile);
-
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
-    }
-
-    @Test
-    public void shouldFail_whenCountryzonesMissesTimeZone() throws Exception {
-        CountryZonesFile.Country gbCountry =
-                CountryZonesFile.Country.newBuilder()
-                        .setIsoCode("gb")
-                        .addTimeZoneMappings(CountryZonesFile.TimeZoneMapping.newBuilder()
-                                .setUtcOffset("00:00")
-                                .setId("Europe/London")
-                                .addAlternativeIds("Europe/Belfast"))
-                        .build();
-
-        CountryZonesFile.CountryZones countryZones =
-                createValidCountryZones(gbCountry);
-        String countryZonesFile = createCountryZonesFile(countryZones);
-
-        String zoneTabFile = createZoneTabFile();
-
-        String tzLookupFile = createTempFileName("tzlookup");
-        String tzIdsFile = createTempFileName("tzids");
-
-        TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(true /* validateAllIanaIdsAreMapped */));
     }
 
     private static void addReplacement(TzIdsProto.CountryMapping.Builder builder,
@@ -903,19 +735,21 @@ public class TzLookupGeneratorTest {
     }
 
     private OutputData generateOutputData(CountryZonesFile.Country country,
-            List<ZoneTabFile.CountryEntry> zoneTabEntries) throws Exception {
+            List<ZoneTabFile.CountryEntry> zoneTabEntries, Map<String, String> backwardLinks)
+            throws Exception {
 
         CountryZonesFile.CountryZones countryZones = createValidCountryZones(country);
         String countryZonesFile = createCountryZonesFile(countryZones);
 
         String zoneTabFile = createZoneTabFile(zoneTabEntries);
+        String backwardFile = createBackwardFile(backwardLinks);
 
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertTrue(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertTrue(tzLookupGenerator.execute());
 
         Path tzLookupFilePath = checkFileExists(tzLookupFile);
         String tzLookupXml = readFileToString(tzLookupFilePath);
@@ -930,19 +764,21 @@ public class TzLookupGeneratorTest {
     }
 
     private void generateTzLookupXmlExpectFailure(CountryZonesFile.Country country,
-            List<ZoneTabFile.CountryEntry> zoneTabEntries) throws Exception {
+            List<ZoneTabFile.CountryEntry> zoneTabEntries, Map<String, String> backwardLinks)
+            throws Exception {
 
         CountryZonesFile.CountryZones countryZones = createValidCountryZones(country);
         String countryZonesFile = createCountryZonesFile(countryZones);
 
         String zoneTabFile = createZoneTabFile(zoneTabEntries);
+        String backwardFile = createBackwardFile(backwardLinks);
 
         String tzLookupFile = createTempFileName("tzlookup");
         String tzIdsFile = createTempFileName("tzids");
 
         TzLookupGenerator tzLookupGenerator = new TzLookupGenerator(
-                countryZonesFile, zoneTabFile, tzLookupFile, tzIdsFile);
-        assertFalse(tzLookupGenerator.execute(false /* validateAllIanaIdsAreMapped */));
+                countryZonesFile, zoneTabFile, backwardFile, tzLookupFile, tzIdsFile);
+        assertFalse(tzLookupGenerator.execute());
     }
 
     private static String readFileToString(Path file) throws IOException {
@@ -1173,6 +1009,17 @@ public class TzLookupGeneratorTest {
         Path tempFile = Files.createTempFile(tempDir, fileNamePrefix, null /* suffix */);
         Files.delete(tempFile);
         return tempFile.toString();
+    }
+
+    private String createBackwardFile(Map<String, String> links) throws Exception {
+        List<String> lines = links.entrySet().stream()
+                .map(x -> "Link\t" + x.getValue() + "\t\t" + x.getKey())
+                .collect(Collectors.toList());
+        return TestUtils.createFile(tempDir, lines.toArray(new String[0]));
+    }
+
+    private static Map<String, String> createEmptyBackwardLinks() {
+        return new HashMap<>();
     }
 
     private static Country parseCountry(String text) throws Exception {
