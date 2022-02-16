@@ -1,4 +1,4 @@
-#!/usr/bin/python3 -B
+#!/usr/bin/python -B
 
 # Copyright 2019 The Android Open Source Project
 #
@@ -15,6 +15,8 @@
 # limitations under the License.
 
 """Dumps the contents of a tzdata file."""
+
+from __future__ import print_function
 
 import argparse
 import os
