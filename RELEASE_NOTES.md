@@ -1,6 +1,6 @@
-### 2021 rev. 3
+### 2021a rev. 3
 
-Like 2021 rev.2 this release is also different from regular updates. It is
+Like 2021a rev.2 this release is also different from regular updates. It is
 closely correlated with IANA's `2021d` and `2021e`. See below for more details.
 
 TZDB version `2021c` reverted most (but not all) time zone merges from `2021b`.
