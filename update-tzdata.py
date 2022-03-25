@@ -1,4 +1,4 @@
-#!/usr/bin/python -B
+#!/usr/bin/python3 -B
 
 # Copyright 2017 The Android Open Source Project
 #
@@ -15,8 +15,6 @@
 # limitations under the License.
 
 """Generates the timezone data files used by Android."""
-
-from __future__ import print_function
 
 import argparse
 import glob
@@ -175,7 +173,7 @@ def BuildTzdata(zic_binary_file, extracted_iana_data_dir, iana_data_version):
   print('Calling zic...')
   zic_output_dir = '%s/data' % tmp_dir
   os.mkdir(zic_output_dir)
-  zic_cmd = [zic_binary_file, '-d', zic_output_dir, zic_input_file]
+  zic_cmd = [zic_binary_file, '-b', 'fat', '-d', zic_output_dir, zic_input_file]
   subprocess.check_call(zic_cmd)
 
   # ZoneCompactor
@@ -204,10 +202,9 @@ def BuildTzlookupAndTzIds(iana_data_dir):
   tzdatautil.InvokeSoong(android_build_top, ['tzlookup_generator'])
 
   zone_tab_file = '%s/zone.tab' % iana_data_dir
-  backward_file = '%s/backward' % iana_data_dir
   command = '%s/bin/tzlookup_generator' % android_host_out
-  subprocess.check_call([command, countryzones_source_file, zone_tab_file, backward_file,
-                         tzlookup_dest_file, tzids_dest_file])
+  subprocess.check_call([command, countryzones_source_file, zone_tab_file, tzlookup_dest_file,
+                         tzids_dest_file])
 
 
 def BuildTelephonylookup():
@@ -226,7 +223,7 @@ def CreateDistroFiles(iana_data_version, android_revision,
   create_distro_script = '%s/distro/tools/create-distro.py' % timezone_dir
 
   tzdata_file = '%s/iana/tzdata' % timezone_output_data_dir
-  icu_file = '%s/icu_overlay/icu_tzdata.dat' % timezone_output_data_dir
+  icu_dir = '%s/icu_overlay' % timezone_output_data_dir
   tzlookup_file = '%s/android/tzlookup.xml' % timezone_output_data_dir
   telephonylookup_file = '%s/android/telephonylookup.xml' % timezone_output_data_dir
 
@@ -241,7 +238,7 @@ def CreateDistroFiles(iana_data_version, android_revision,
       '-iana_version', iana_data_version,
       '-revision', str(android_revision),
       '-tzdata', tzdata_file,
-      '-icu', icu_file,
+      '-icu_dir', icu_dir,
       '-tzlookup', tzlookup_file,
       '-telephonylookup', telephonylookup_file,
       '-output_distro_dir', output_distro_dir,
