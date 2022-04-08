@@ -15,9 +15,6 @@
  */
 package com.android.timezone.distro.installer;
 
-import com.android.i18n.timezone.TzDataSetVersion;
-import com.android.i18n.timezone.TzDataSetVersion.TzDataSetException;
-import com.android.i18n.timezone.ZoneInfoDb;
 import com.android.timezone.distro.DistroException;
 import com.android.timezone.distro.DistroVersion;
 import com.android.timezone.distro.FileUtils;
@@ -33,8 +30,11 @@ import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import com.android.i18n.timezone.TelephonyLookup;
-import com.android.i18n.timezone.TimeZoneFinder;
+import libcore.timezone.TelephonyLookup;
+import libcore.timezone.TzDataSetVersion;
+import libcore.timezone.TzDataSetVersion.TzDataSetException;
+import libcore.timezone.TimeZoneFinder;
+import libcore.timezone.ZoneInfoDb;
 
 /**
  * A distro-validation / extraction class. Separate from the services code that uses it for easier
@@ -209,11 +209,18 @@ public class TimeZoneDistroInstaller {
 
             // Validate the tzdata file.
             File zoneInfoFile = new File(workingDir, TimeZoneDistro.TZDATA_FILE_NAME);
+            ZoneInfoDb tzData = ZoneInfoDb.loadTzData(zoneInfoFile.getPath());
+            if (tzData == null) {
+                Slog.i(logTag, "Update not applied: " + zoneInfoFile + " could not be loaded");
+                return INSTALL_FAIL_VALIDATION_ERROR;
+            }
             try {
-                ZoneInfoDb.validateTzData(zoneInfoFile.getPath());
+                tzData.validate();
             } catch (IOException e) {
                 Slog.i(logTag, "Update not applied: " + zoneInfoFile + " failed validation", e);
                 return INSTALL_FAIL_VALIDATION_ERROR;
+            } finally {
+                tzData.close();
             }
 
             // Validate the tzlookup.xml file.

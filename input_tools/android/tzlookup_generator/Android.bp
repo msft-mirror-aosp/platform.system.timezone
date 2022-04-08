@@ -12,36 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package {
-    // http://go/android-license-faq
-    // A large-scale-change added 'default_applicable_licenses' to import
-    // the below license kinds from "system_timezone_license":
-    //   SPDX-license-identifier-Apache-2.0
-    default_applicable_licenses: ["system_timezone_license"],
-}
-
 // Proto library
 java_library_host {
-    name: "countryzones_protos",
-
+    name: "countryzonesprotos",
     proto: {
         type: "full",
         include_dirs: ["external/protobuf/src"],
     },
 
     srcs: ["src/main/proto/**/*.proto"],
-}
-
-java_library_host {
-    name: "tzlookup",
-
-    srcs: ["src/main/java/**/*.java"],
-    static_libs: [
-        "countryzones_protos",
-        "icu4j",
-        "tzids",
-        "tztools_common",
-    ],
 }
 
 // The tzlookup_generator host tool.
@@ -51,20 +30,21 @@ java_binary_host {
     main_class: "com.android.libcore.timezone.tzlookup.TzLookupGenerator",
     srcs: ["src/main/java/**/*.java"],
     static_libs: [
-        "tzlookup",
+        "icu4j",
+        "countryzonesprotos",
+        "libprotobuf-java-full",
+        "tztools_common",
     ],
 }
 
+// The tzlookup_generator host tool.
 java_test_host {
-    name: "tzlookup_tests",
+    name: "tzlookup_generator_tests",
 
     srcs: ["src/test/java/**/*.java"],
-    test_options: {
-        unit_test: true,
-    },
     static_libs: [
         "junit",
-        "tzlookup",
+        "tzlookup_generator",
         "tztools_common_testing",
     ],
 }

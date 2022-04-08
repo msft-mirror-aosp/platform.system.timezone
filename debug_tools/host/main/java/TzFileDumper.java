@@ -285,8 +285,8 @@ public class TzFileDumper {
             Object[] row = new Object[] {
                     type.gmtOffsetSeconds,
                     type.isDst,
-                    nullToEmptyString(type.ttisgmt),
-                    nullToEmptyString(type.ttisstd),
+                    type.ttisgmt,
+                    type.ttisstd,
                     formatDurationSeconds(type.gmtOffsetSeconds),
                     formatIsDst(type.isDst),
             };
@@ -297,10 +297,6 @@ public class TzFileDumper {
         writeTuplesCsv(
                 fileWriter, rows, "gmtOffset (seconds)", "isDst", "ttisgmt", "ttisstd",
                 "[gmtOffset ISO]", "[DST?]");
-    }
-
-    private static Object nullToEmptyString(Object object) {
-        return object == null ? "" : object;
     }
 
     private static void fillIntArray(MappedByteBuffer mappedByteBuffer, int[] toFill) {

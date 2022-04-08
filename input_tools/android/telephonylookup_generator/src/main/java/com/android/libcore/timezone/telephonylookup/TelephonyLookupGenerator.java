@@ -19,7 +19,6 @@ import static com.android.libcore.timezone.telephonylookup.TelephonyLookupProtoF
 
 import com.android.libcore.timezone.telephonylookup.proto.TelephonyLookupProtoFile;
 import com.android.libcore.timezone.util.Errors;
-import com.android.libcore.timezone.util.Errors.HaltExecutionException;
 
 import com.ibm.icu.util.ULocale;
 
@@ -69,75 +68,78 @@ public final class TelephonyLookupGenerator {
     }
 
     boolean execute() throws IOException {
-        Errors errors = new Errors();
+        // Parse the countryzones input file.
+        TelephonyLookupProtoFile.TelephonyLookup telephonyLookupIn;
         try {
-            // Parse the countryzones input file.
-            TelephonyLookupProtoFile.TelephonyLookup telephonyLookupIn;
-            try {
-                telephonyLookupIn = parseTelephonyLookupTextFile(telephonyLookupProtoFile);
-            } catch (ParseException e) {
-                throw errors.addFatalAndHalt("Unable to parse " + telephonyLookupProtoFile, e);
-            }
+            telephonyLookupIn = parseTelephonyLookupTextFile(telephonyLookupProtoFile);
+        } catch (ParseException e) {
+            logError("Unable to parse " + telephonyLookupProtoFile, e);
+            return false;
+        }
 
-            List<TelephonyLookupProtoFile.Network> networksIn = telephonyLookupIn.getNetworksList();
+        List<TelephonyLookupProtoFile.Network> networksIn = telephonyLookupIn.getNetworksList();
 
-            validateNetworks(networksIn, errors);
-            errors.throwIfError("One or more validation errors encountered");
+        Errors processingErrors = new Errors();
+        processingErrors.pushScope("Validation");
+        validateNetworks(networksIn, processingErrors);
+        processingErrors.popScope();
 
-            TelephonyLookupXmlFile.TelephonyLookup telephonyLookupOut =
-                    createOutputTelephonyLookup(networksIn);
+        // Validation failed, so stop.
+        if (processingErrors.hasFatal()) {
+            logInfo("Issues:\n" + processingErrors.asString());
+            return false;
+        }
+
+        TelephonyLookupXmlFile.TelephonyLookup telephonyLookupOut =
+                createOutputTelephonyLookup(networksIn);
+        if (!processingErrors.hasError()) {
+            // Write the output structure if there wasn't an error.
             logInfo("Writing " + outputFile);
             try {
                 TelephonyLookupXmlFile.write(telephonyLookupOut, outputFile);
             } catch (XMLStreamException e) {
-                throw errors.addFatalAndHalt("Unable to write output file", e);
-            }
-        } catch (HaltExecutionException e) {
-            e.printStackTrace();
-            logError("Stopping due to fatal error: " + e.getMessage());
-        } finally {
-            // Report all warnings / errors
-            if (!errors.isEmpty()) {
-                logInfo("Issues:\n" + errors.asString());
+                e.printStackTrace(System.err);
+                processingErrors.addFatal("Unable to write output file");
             }
         }
-        return !errors.hasError();
+
+        // Report all warnings / errors
+        if (!processingErrors.isEmpty()) {
+            logInfo("Issues:\n" + processingErrors.asString());
+        }
+
+        return !processingErrors.hasError();
     }
 
-    private static void validateNetworks(List<TelephonyLookupProtoFile.Network> networksIn,
-            Errors errors) {
-        errors.pushScope("validateNetworks");
-        try {
-            Set<String> knownIsoCountries = getLowerCaseCountryIsoCodes();
-            Set<String> mccMncSet = new HashSet<>();
-            for (TelephonyLookupProtoFile.Network networkIn : networksIn) {
-                String mcc = networkIn.getMcc();
-                if (mcc.length() != 3 || !isAsciiNumeric(mcc)) {
-                    errors.addError("mcc=" + mcc + " must have 3 decimal digits");
-                }
-
-                String mnc = networkIn.getMnc();
-                if (!(mnc.length() == 2 || mnc.length() == 3) || !isAsciiNumeric(mnc)) {
-                    errors.addError("mnc=" + mnc + " must have 2 or 3 decimal digits");
-                }
-
-                String mccMnc = "" + mcc + mnc;
-                if (!mccMncSet.add(mccMnc)) {
-                    errors.addError("Duplicate entry for mcc=" + mcc + ", mnc=" + mnc);
-                }
-
-                String countryIsoCode = networkIn.getCountryIsoCode();
-                String countryIsoCodeLower = countryIsoCode.toLowerCase(Locale.ROOT);
-                if (!countryIsoCodeLower.equals(countryIsoCode)) {
-                    errors.addError("Country code not lower case: " + countryIsoCode);
-                }
-
-                if (!knownIsoCountries.contains(countryIsoCodeLower)) {
-                    errors.addError("Country code not known: " + countryIsoCode);
-                }
+    private static void validateNetworks(
+            List<TelephonyLookupProtoFile.Network> networksIn, Errors processingErrors) {
+        Set<String> knownIsoCountries = getLowerCaseCountryIsoCodes();
+        Set<String> mccMncSet = new HashSet<>();
+        for (TelephonyLookupProtoFile.Network networkIn : networksIn) {
+            String mcc = networkIn.getMcc();
+            if (mcc.length() != 3 || !isAsciiNumeric(mcc)) {
+                processingErrors.addFatal("mcc=" + mcc + " must have 3 decimal digits");
             }
-        } finally {
-            errors.popScope();
+
+            String mnc = networkIn.getMnc();
+            if (!(mnc.length() == 2 || mnc.length() == 3) || !isAsciiNumeric(mnc)) {
+                processingErrors.addFatal("mnc=" + mnc + " must have 2 or 3 decimal digits");
+            }
+
+            String mccMnc = "" + mcc + mnc;
+            if (!mccMncSet.add(mccMnc)) {
+                processingErrors.addFatal("Duplicate entry for mcc=" + mcc + ", mnc=" + mnc);
+            }
+
+            String countryIsoCode = networkIn.getCountryIsoCode();
+            String countryIsoCodeLower = countryIsoCode.toLowerCase(Locale.ROOT);
+            if (!countryIsoCodeLower.equals(countryIsoCode)) {
+                processingErrors.addFatal("Country code not lower case: " + countryIsoCode);
+            }
+
+            if (!knownIsoCountries.contains(countryIsoCodeLower)) {
+                processingErrors.addFatal("Country code not known: " + countryIsoCode);
+            }
         }
     }
 

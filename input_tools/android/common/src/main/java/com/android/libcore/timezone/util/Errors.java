@@ -16,17 +16,12 @@
 
 package com.android.libcore.timezone.util;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Stores context, errors and error severity for logging and flow control. This class distinguishes
- * between warnings (just info), errors (may not be immediately fatal) and fatal (immediately
- * fatal).
+ * Stores context, errors and error severity for logging and flow control.
  */
 public final class Errors {
 
@@ -50,29 +45,19 @@ public final class Errors {
         return scopes.removeLast();
     }
 
-    /** Adds a fatal error, and immediately throws {@link HaltExecutionException}. */
-    public HaltExecutionException addFatalAndHalt(String msg) throws HaltExecutionException {
-        addInternal(msg, null, LEVEL_FATAL);
-        throw new HaltExecutionException("Fatal error");
-    }
-
-    /** Adds a fatal error, and immediately throws {@link HaltExecutionException}. */
-    public HaltExecutionException addFatalAndHalt(String msg, Throwable t)
-            throws HaltExecutionException {
-        addInternal(msg, t, LEVEL_FATAL);
-        throw new HaltExecutionException("Fatal error");
+    public void addFatal(String msg) {
+        level = Math.max(level, LEVEL_FATAL);
+        add(msg);
     }
 
     public void addError(String msg) {
-        addInternal(msg, null, LEVEL_ERROR);
-    }
-
-    public void addError(String msg, Throwable t) {
-        addInternal(msg, t, LEVEL_ERROR);
+        level = Math.max(level, LEVEL_ERROR);
+        add(msg);
     }
 
     public void addWarning(String msg) {
-        addInternal(msg, null, LEVEL_WARNING);
+        level = Math.max(level, LEVEL_WARNING);
+        add(msg);
     }
 
     public String asString() {
@@ -88,46 +73,15 @@ public final class Errors {
         return messages.isEmpty();
     }
 
-    /** True if there are error or fatal messages. */
     public boolean hasError() {
         return level >= LEVEL_ERROR;
     }
 
-    /** True if there are fatal messages. */
     public boolean hasFatal() {
         return level >= LEVEL_FATAL;
     }
 
-    private void addInternal(String msg, Throwable t, int level) {
-        this.level = Math.max(this.level, level);
-        addMessage(msg);
-        if (t != null) {
-            try (StringWriter out = new StringWriter();
-                    PrintWriter printWriter = new PrintWriter(out)) {
-                t.printStackTrace(printWriter);
-                addMessage(out.toString());
-            } catch (IOException e) {
-                // Impossible - this is actually a compiler bug. Nothing throws IOException above.
-                throw new AssertionError("Impossible exception thrown", e);
-            }
-        }
-    }
-
-    private void addMessage(String msg) {
+    private void add(String msg) {
         messages.add(scopes.toString() + ": " + msg);
-    }
-
-    /** Throws a {@link HaltExecutionException} if there are any error or fatal messages. */
-    public void throwIfError(String why) throws HaltExecutionException {
-        if (hasError()) {
-            throw new HaltExecutionException(why);
-        }
-    }
-
-    /** Thrown to halt execution. */
-    public static class HaltExecutionException extends Exception {
-        HaltExecutionException(String why) {
-            super(why);
-        }
     }
 }

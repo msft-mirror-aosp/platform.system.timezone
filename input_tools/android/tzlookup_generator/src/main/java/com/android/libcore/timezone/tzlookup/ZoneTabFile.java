@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +36,7 @@ final class ZoneTabFile {
 
     private ZoneTabFile() {}
 
-    static ZoneTabFile parse(String zoneTabFile) throws IOException, ParseException {
+    static ZoneTabFile parse(String zoneTabFile) throws IOException {
         ZoneTabFile zoneTab = new ZoneTabFile();
 
         List<String> lines = Files
@@ -50,9 +49,9 @@ final class ZoneTabFile {
                         .collect(Collectors.toList());
 
         for (String mappingLine : mappingLines) {
-            String[] fields = mappingLine.split("\t+");
+            String[] fields = mappingLine.split("\t");
             if (fields.length < 3) {
-                throw new ParseException("Line is malformed: " + mappingLine, 0);
+                throw new IOException("Line is malformed: " + mappingLine);
             }
             CountryEntry countryEntry = new CountryEntry(fields[0], fields[2]);
             zoneTab.addCountryEntry(countryEntry);
@@ -75,10 +74,7 @@ final class ZoneTabFile {
                     countryEntry.isoCode, k -> new ArrayList<>());
             olsonIds.add(countryEntry.olsonId);
         }
-        // Replace each list value with an immutable one.
-        countryIsoToOlsonIdsMap.forEach(
-                (k, v) -> countryIsoToOlsonIdsMap.put(k, Collections.unmodifiableList(v)));
-        return Collections.unmodifiableMap(countryIsoToOlsonIdsMap);
+        return countryIsoToOlsonIdsMap;
     }
 
     static class CountryEntry {

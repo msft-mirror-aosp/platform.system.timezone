@@ -20,10 +20,8 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import com.android.libcore.timezone.testing.TestUtils;
-import com.android.libcore.timezone.util.Errors.HaltExecutionException;
 
 public class ErrorsTest {
 
@@ -64,10 +62,7 @@ public class ErrorsTest {
         assertFalse(errors.hasError());
         assertFalse(errors.hasFatal());
 
-        try {
-            throw errors.addFatalAndHalt("Hello");
-        } catch (HaltExecutionException expected) {}
-
+        errors.addFatal("Hello");
         assertFalse(errors.isEmpty());
         assertTrue(errors.hasError());
         assertTrue(errors.hasFatal());
@@ -85,19 +80,13 @@ public class ErrorsTest {
         errors.addError("John Cleese");
 
         errors.pushScope("Holy grail");
-        try {
-            errors.addFatalAndHalt("Silly place");
-            fail();
-        } catch (HaltExecutionException expected) {}
+        errors.addFatal("Silly place");
         errors.popScope();
 
         errors.addError("Michael Palin");
 
         errors.pushScope("Parrot sketch");
-        try {
-            errors.addFatalAndHalt("Fjords");
-            fail();
-        } catch (HaltExecutionException expected) {}
+        errors.addFatal("Fjords");
         errors.popScope();
 
         String[] lines = errors.asString().split("\n");

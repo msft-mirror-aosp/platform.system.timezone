@@ -1,4 +1,64 @@
-### 2021a rev. 2 
+### 2022a
+
+This update includes pre-1970
+[changes](https://github.com/eggert/tz/commit/1edbb16e933a6ba6dceefd2bd7057b5ce00dd13c)
+which were reverted manually in Android and resulted in Android releasing
+updates we called `2021a rev 2` and `2021a rev 3` instead of tracking TZDB's
+`2021b` and `2021c` releases. Android has made changes to reduce the impact of
+these changes. This might have app compat issues as some methods in Android's
+ICU4J APIs such as `TimeZone.getCanonicalID(id)` will return different time
+zone IDs than before. After this release, the canonical zone IDs returned will
+be different for some input IDs, and will more often be associated with
+different regions.
+
+`Africa/Casablanca` is a time zone modelled by the TZDB using a negative DST
+saving to represent the period of Ramadan. Several of Android's embedded time
+libraries do not support negative DST savings, so we use TZDB's rearguard
+format, which flips standard and daylight saving time definitions for affected
+zones. Also, `Africa/Casablanca` transitions follow lunar calendar, which
+is not supported by TZif format so transitions are pre-generated (as of now up
+to year 2087). As they are pre-generated, the last transition is used for dates
+after 2087. Before `2022a`, in rearguard format that last transition was from
+standard to daylight saving time. Having DST throughout the year might break
+assumptions in software, so as of `2022a` the  last transition is marked as
+standard time, even though its offset differs from standard time offset used in
+prior transitions.
+
+A standard-to-standard time transition breaks DST saving logic in
+Android's `java.util.TimeZone.getDSTSavings()` - it returns 0 instead of 1 hour.
+`input_data/iana/tzdb2022a.tar.gz` has [commit](https://github.com/eggert/tz/commit/cec7d9e2e83f8a3faa2367e0d45383a1557889ed)
+reverted to bring back the old TZif file. There is no fix yet, it will be like
+that indefinitely.
+
+The main reason for the TZDB `2022a` release is a change to the DST transition
+for Palestine on 27 Mar 2022. In addition to this year's change, future
+predictions have also been [adjusted](https://github.com/eggert/tz/commit/59467e3373a2f90aae3a3c9684ab527855922427)
+so the DST transitions for future years are also affected.
+
+
+### 2021a rev. 3
+
+Like 2021a rev.2 this release is also different from regular updates. It is
+closely correlated with IANA's `2021d` and `2021e`. See below for more details.
+
+TZDB version `2021c` reverted most (but not all) time zone merges from `2021b`.
+As Android has not applied any of them and there were no other rules update,
+it is a no-op for Android.
+
+Then TZDB version `2021d` was released with Fiji changes. That corresponds to
+ICU's `2021a2`. But `2021a2` also picked up a
+`"Link America/Panama America/Coral_Harbour"` change from IANA's TZDB release
+in the backward file.
+
+ICU's `2021a3` is `2021a2` with Palestine changes. No extra change there.
+
+`tzdata2021a.tar.gz` in this Android TZDB update is ICU's [`tzdata2021a3.tar.gz`](https://github.com/unicode-org/icu-data/blob/d90a4eed92e3c5221c4dc1977bfdb7c072a8bb3d/tzdata/tzdata_patch/tzdata2021a3.tar.gz)
+with `Link` change mention above reverted. Not reverting it will put
+`America/Coral_Harbour` under Panama in `tzlookup.xml`. Right approach here
+is to update tooling, but that will take some time.
+
+
+### 2021a rev. 2
 
 In `2021b` several time zones which were alike since 1970 were merged. It
 received backlash in tz mailing-list. Please check
@@ -56,4 +116,5 @@ requires changes in CLDR and `tzdb2021b` was announced late in CLDR's release
 cycle.
 
 Code changes were skipped as Android uses fixed version of tzcode, not ToT.
+
 
