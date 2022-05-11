@@ -47,14 +47,20 @@ public class TimeZoneVersionTest {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
             assertEquals("003", majorVersion);
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            // TODO Hack for master: This ain't R. Remove this after R devices are behaving
-            //  properly.
-            if (VersionInfo.ICU_VERSION.getMajor() > 66) {
-                // S is 5.x.
-                assertEquals("005", majorVersion);
+            assertEquals("004", majorVersion);
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S) {
+            assertEquals("005", majorVersion);
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S_V2) {
+            // S_V2 is 5.x, as the format version did not change from S.
+            assertEquals("005", majorVersion);
+        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+            // TODO Hack for master, which will have the same API level as T until the next
+            // release API is finalized.
+            if (VersionInfo.ICU_VERSION.getMajor() > 70) {
+                // U is expected to be 7.x.
+                assertEquals("007", majorVersion);
             } else {
-                // R is 4.x.
-                assertEquals("004", majorVersion);
+                assertEquals("006", majorVersion);
             }
         } else {
             // If this fails, a new API level has likely been finalized and can be made
