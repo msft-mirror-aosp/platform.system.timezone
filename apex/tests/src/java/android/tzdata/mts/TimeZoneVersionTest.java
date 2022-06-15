@@ -41,6 +41,9 @@ public class TimeZoneVersionTest {
     private static final File TIME_ZONE_MODULE_VERSION_FILE =
             new File("/apex/com.android.tzdata/etc/tz/tz_version");
 
+    // S_V2 release's SDK level.
+    private static final int S_V2 = 32;
+
     @Test
     public void timeZoneModuleIsCompatibleWithThisRelease() throws Exception {
         String majorVersion = readMajorFormatVersionFromModuleVersionFile();
@@ -50,17 +53,18 @@ public class TimeZoneVersionTest {
             assertEquals("004", majorVersion);
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S) {
             assertEquals("005", majorVersion);
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.S_V2) {
-            // S_V2 is 5.x, as the format version did not change from S.
-            assertEquals("005", majorVersion);
-        } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
-            // TODO Hack for master, which will have the same API level as T until the next
+        // MTS are built on sc-mainline-prod branch, where Build.VERSION_CODES has entries up to
+        // S (SDK level 31) only. However, S QPR3's SDK level is 32, as in S_V2. This branch is to
+        // make sure that this test passes on such builds.
+        } else if (Build.VERSION.SDK_INT == S_V2) {
+            // TODO Hack for master, which will have the same API level as S_V2 until the next
             // release API is finalized.
-            if (VersionInfo.ICU_VERSION.getMajor() > 70) {
-                // U is expected to be 7.x.
-                assertEquals("007", majorVersion);
-            } else {
+            if (VersionInfo.ICU_VERSION.getMajor() > 68) {
+                // T is expected to be 6.x.
                 assertEquals("006", majorVersion);
+            } else {
+                // S_V2 is 5.x, as the format version did not change from S.
+                assertEquals("005", majorVersion);
             }
         } else {
             // If this fails, a new API level has likely been finalized and can be made
