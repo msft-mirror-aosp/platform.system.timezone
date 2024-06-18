@@ -44,3 +44,15 @@ license {
         "LICENSE",
     ],
 }
+
+prebuilt_root_host {
+    // TODO(mingaleev) Rename this. It's no longer tzdata.dat.
+    name: "icu_tzdata.dat_host_tzdata_apex",
+    srcs: [
+        "metaZones.res",
+        "timezoneTypes.res",
+        "windowsZones.res",
+        "zoneinfo64.res",
+    ],
+    relative_install_path: "com.android.tzdata/etc/tz/versioned/8/icu",
+}
